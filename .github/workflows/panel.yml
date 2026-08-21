@@ -1,0 +1,35 @@
+name: Actualizar panel
+
+on:
+  schedule:
+    - cron: "0 12 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Leer Wrike y regenerar el panel
+        env:
+          WRIKE_TOKEN: ${{ secrets.WRIKE_TOKEN }}
+        run: python3 actualizar.py
+
+      - name: Commitear si cambio
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet; then
+            echo "Sin cambios."
+          else
+            git add index.html estado.json
+            git commit -m "Actualizacion del panel — $(TZ=America/Cordoba date '+%Y-%m-%d %H:%M')"
+            git push
+          fi
