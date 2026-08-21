@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="googlebot" content="noindex, nofollow">
+<title>Panel FuXion · Producción</title>
+<style>
+:root{--navy:#092A67;--crema:#F4EDE0;--mint:#E4F3EA;--blanco:#fff;--verde:#1C8A5B;
+--ambar:#A85D00;--tinte:#C3CEDF;--neutro:#DDD8CC;--linea:#E2DCCE;--gris:#5A6B85;
+--f:"Space Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--f);background:var(--crema);color:var(--navy);
+padding:24px 28px 44px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1460px;margin:0 auto}
+h1{font-size:24px;font-weight:700;letter-spacing:-.2px}
+h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;
+color:var(--gris);margin:28px 0 12px}
+.top{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;
+border-bottom:2px solid var(--navy);padding-bottom:15px}
+.top .sub{font-size:13px;color:var(--gris);margin-top:4px}
+.spacer{flex:1}
+.badge{display:inline-flex;align-items:center;gap:8px;background:var(--blanco);
+border:1px solid var(--linea);border-radius:999px;padding:7px 14px;font-size:12px;font-weight:600}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--verde);flex:none}
+.dot.plan{background:var(--ambar)}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:20px}
+.kpi{background:var(--blanco);border-radius:12px;padding:16px 18px}
+.kpi .lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--gris)}
+.kpi .val{font-size:33px;font-weight:700;line-height:1.15;margin-top:6px}
+.kpi .val small{font-size:15px;font-weight:600;color:var(--gris)}
+.kpi .note{font-size:11.5px;color:var(--gris);margin-top:4px}
+table{border-collapse:separate;border-spacing:0;width:100%;background:var(--blanco);
+border-radius:12px;overflow:hidden;font-size:12px}
+th{background:var(--navy);color:#fff;font-weight:600;font-size:10.5px;padding:10px 5px;text-align:center}
+th.l,td.l{text-align:left;padding-left:15px}
+td{padding:0;border-bottom:1px solid var(--linea);text-align:center}
+tr:last-child td{border-bottom:0}
+td.l{padding:9px 5px 9px 15px;font-weight:600;white-space:nowrap}
+td.l a{color:var(--navy);text-decoration:none;border-bottom:1px dotted var(--tinte)}
+td.l a:hover{border-bottom-style:solid}
+.cell{width:31px;height:27px;margin:4px auto;border-radius:6px;display:flex;
+align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.c-pend{background:var(--neutro)}.c-curso{background:var(--navy)}
+.c-hecho{background:var(--verde)}.c-atras{background:var(--ambar)}
+.c-cli{box-shadow:inset 0 0 0 2px var(--navy)}
+.bar{width:76px;height:7px;background:var(--neutro);border-radius:4px;overflow:hidden;
+display:inline-block;vertical-align:middle}
+.bar i{display:block;height:100%;background:var(--verde);border-radius:4px}
+.pct{font-size:11px;font-weight:700;margin-left:8px;vertical-align:middle}
+td.fin{font-weight:700;font-size:11.5px;white-space:nowrap;padding-right:15px}
+.leyenda{display:flex;gap:18px;flex-wrap:wrap;margin-top:11px;font-size:11.5px;color:var(--gris)}
+.leyenda span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:13px;height:13px;border-radius:4px;display:inline-block}
+.alertas{background:var(--blanco);border-radius:12px;padding:6px 0;font-size:12.5px}
+.alertas div{padding:9px 18px;border-bottom:1px solid var(--linea);display:flex;gap:10px;align-items:baseline}
+.alertas div:last-child{border-bottom:0}
+.tag{background:var(--ambar);color:#fff;border-radius:5px;padding:2px 7px;
+font-size:10px;font-weight:700;flex:none}
+.tag.ok{background:var(--verde)}
+.pie{margin-top:28px;padding-top:14px;border-top:1px solid var(--linea);
+font-size:11.5px;color:var(--gris);line-height:1.7}
+.pie a{color:var(--navy)}
+.aviso{background:var(--mint);border-radius:10px;padding:13px 16px;font-size:12.5px;
+margin-top:16px;line-height:1.55}
+@media(max-width:1080px){.kpis{grid-template-columns:repeat(2,1fr)}}
+</style></head><body><div class="wrap">
+
+<div class="top">
+  <div><h1>FuXion · Panel de producción</h1>
+  <div class="sub">11 videos · 24/08 → 28/10/2026 · un video nuevo cada 3 días hábiles</div></div>
+  <div class="spacer"></div>
+  <div class="badge"><span class="dot" id="dot"></span><span id="sello"></span></div>
+</div>
+
+<div class="kpis" id="kpis"></div>
+
+<h2>Avance por video</h2>
+<div id="matriz"></div>
+<div class="leyenda">
+  <span><i class="sw" style="background:var(--neutro)"></i> Pendiente</span>
+  <span><i class="sw" style="background:var(--navy)"></i> En curso</span>
+  <span><i class="sw" style="background:var(--verde)"></i> Completada ✓</span>
+  <span><i class="sw" style="background:var(--ambar)"></i> Atrasada !</span>
+  <span><i class="sw" style="box-shadow:inset 0 0 0 2px var(--navy);background:transparent"></i> Etapa a cargo de FuXion</span>
+</div>
+
+<div id="bloqueAlertas"></div>
+<div class="aviso" id="aviso"></div>
+<div class="pie" id="pie"></div>
+
+</div><script>
+const D = __DATOS__;
+const d = s => { const p = s.split("-").map(Number); return new Date(p[0], p[1]-1, p[2]); };
+const fx = s => { const p = s.split("-"); return p[2]+"/"+p[1]; };
+const hoy = () => { const t = new Date(); return new Date(t.getFullYear(), t.getMonth(), t.getDate()); };
+const GL = {hecho:"✓", atras:"!", curso:"", pend:""};
+
+function estado(et){
+  const h = hoy(), t = D.tareas[et.key];
+  if(D.vivo){
+    if(t && t.completada) return "hecho";
+    if(d(et.fin) < h) return "atras";
+    if(d(et.ini) <= h) return "curso";
+    return "pend";
+  }
+  if(d(et.fin) < h) return "hecho";
+  if(d(et.ini) <= h) return "curso";
+  return "pend";
+}
+
+let K = {hechas:0, total:0, publicados:0, atrasadas:0, curso:0, cli:0, alertas:[]};
+D.videos.forEach(v => {
+  v._h = 0;
+  v.etapas.forEach(et => {
+    const e = et._e = estado(et);
+    K.total++;
+    if(e==="hecho"){ K.hechas++; v._h++; }
+    if(e==="curso"){ K.curso++; if(et.rol==="CL") K.cli++; }
+    if(e==="atras"){ K.atrasadas++; K.alertas.push({v:v.label, et, dias:Math.round((hoy()-d(et.fin))/864e5)}); }
+  });
+  v._pct = Math.round(v._h / v.etapas.length * 100);
+  if(v._h === v.etapas.length) K.publicados++;
+});
+const prox = D.videos.find(v => d(v.fin) >= hoy());
+const avance = Math.round(K.hechas / K.total * 100);
+
+document.getElementById("kpis").innerHTML = [
+  [D.vivo?"Avance real":"Avance esperado", avance+"<small>%</small>", K.hechas+" de "+K.total+" etapas"],
+  [D.vivo?"Videos publicados":"Deberían estar publicados", K.publicados+"<small>/11</small>",
+   K.publicados ? (D.vivo?"entregados":"según el plan") : "ninguno todavía"],
+  ["Etapas en curso", K.curso, K.curso===1?"1 tarea activa":K.curso+" tareas activas"],
+  ["Próxima entrega", prox?fx(prox.fin):"—", prox?prox.label:"proyecto cerrado"],
+  [K.atrasadas?"Etapas atrasadas":"Validaciones FuXion", K.atrasadas||K.cli,
+   K.atrasadas?"requieren atención":(K.cli?"abiertas ahora":"ninguna abierta")]
+].map(t => `<div class="kpi"><div class="lbl">${t[0]}</div><div class="val">${t[1]}</div><div class="note">${t[2]}</div></div>`).join("");
+
+document.getElementById("matriz").innerHTML =
+ `<table><thead><tr><th class="l">Video</th>` +
+ D.videos[0].etapas.map(e=>`<th title="${e.nombre}">${e.abbr}</th>`).join("") +
+ `<th>Avance</th><th>Entrega</th></tr></thead><tbody>` +
+ D.videos.map(v => `<tr><td class="l"><a href="https://www.wrike.com/open.htm?id=${v.link}" target="_blank">${v.label}</a></td>` +
+   v.etapas.map(et => `<td><div class="cell c-${et._e}${et.rol==="CL"?" c-cli":""}" title="${et.nombre} · ${fx(et.ini)}–${fx(et.fin)} · ${D.roles[et.rol]}">${GL[et._e]}</div></td>`).join("") +
+   `<td><span class="bar"><i style="width:${v._pct}%"></i></span><span class="pct">${v._pct}%</span></td>
+    <td class="fin">${fx(v.fin)}</td></tr>`).join("") + `</tbody></table>`;
+
+if(K.alertas.length){
+  K.alertas.sort((a,b)=>b.dias-a.dias);
+  const TOPE = 8, resto = K.alertas.length - TOPE;
+  document.getElementById("bloqueAlertas").innerHTML =
+   `<h2>Requiere atención</h2><div class="alertas">` +
+   K.alertas.slice(0,TOPE).map(a => `<div><span class="tag">${a.dias} d</span>
+     <span><b>${a.v} · ${a.et.nombre}</b> — venció el ${fx(a.et.fin)} y sigue abierta.
+     A cargo de ${D.roles[a.et.rol]}.</span></div>`).join("") +
+   (resto > 0 ? `<div><span class="tag" style="background:var(--gris)">+${resto}</span>
+     <span>${resto} etapa${resto===1?"":"s"} vencida${resto===1?"":"s"} más, con menos días de atraso.
+     El detalle completo está en Wrike.</span></div>` : "") + `</div>`;
+} else if(D.vivo){
+  document.getElementById("bloqueAlertas").innerHTML =
+   `<h2>Requiere atención</h2><div class="alertas"><div><span class="tag ok">OK</span>
+    <span>Ninguna etapa vencida sin cerrar. El proyecto va en fecha.</span></div></div>`;
+}
+
+document.getElementById("dot").className = "dot" + (D.vivo ? "" : " plan");
+document.getElementById("sello").textContent = D.vivo
+  ? "Datos de Wrike · " + D.sello : "Cronograma planificado";
+document.getElementById("aviso").innerHTML = D.vivo
+  ? `<b>Estados reales de Wrike.</b> Una etapa figura atrasada cuando su fecha venció y la tarea sigue sin cerrarse. El panel se actualiza todos los días a la mañana.`
+  : `<b>Modo cronograma.</b> Todavía no se horneó ninguna lectura de Wrike, así que el panel muestra el plan y no el estado real: una etapa figura completada cuando su fecha ya pasó, no porque alguien la haya cerrado. Sirve como línea base contra la cual comparar.`;
+document.getElementById("pie").innerHTML =
+  `Proyecto <a href="https://www.wrike.com/open.htm?id=${D.proyecto.link}" target="_blank">DRU-FuXion</a> en Wrike · 99 etapas sobre 11 videos · cadencia de ${D.proyecto.takt} días hábiles.<br>
+   Las dos etapas con borde marcado dependen de FuXion: son la única dependencia externa del cronograma.`;
+</script></body></html>
