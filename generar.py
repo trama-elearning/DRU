@@ -46,10 +46,9 @@ INICIO_NUEVO= date(2026,9,24); TAKT_NUEVO= 4   # V3..V10 (indices 3-10)
 CORTE = 3                                       # primer indice con el plan nuevo
 FIN_PROYECTO = "2026-12-04"
 
-# Etapas ya ejecutadas cuya fecha real no sigue el plan nuevo.
-OVERRIDES = {"V3. Guion": ("2026-09-04", "2026-09-07")}
-
-def construir():
+def construir(fechas=None):
+    """fechas: {titulo exacto: [inicio, fin]} tomado de Wrike. Manda sobre el plan calculado."""
+    fechas = fechas or {}
     out = []
     for i,(code,label,link) in enumerate(VIDEOS):
         if i < CORTE:
@@ -62,14 +61,15 @@ def construir():
             r = ("EdA" if i%2==0 else "EdB") if rol=="ED" else rol
             key = ("" if code=="Onboarding" else code+". ")+n
             ini_s, fin_s = cur.isoformat(), fin.isoformat()
-            if key in OVERRIDES: ini_s, fin_s = OVERRIDES[key]
+            real = fechas.get(key)
+            if real and real[0] and real[1]: ini_s, fin_s = real[0], real[1]
             et.append({"n":j+1,"nombre":n,"abbr":ABBR[j],"ini":ini_s,
                        "fin":fin_s,"rol":r,"key":key})
             cur = addbd(fin, 1)
-        fechas = [e["ini"] for e in et] + [e["fin"] for e in et]
+        rango = [e["ini"] for e in et] + [e["fin"] for e in et]
         out.append({"code":code,"label":label,"link":link,
                     "editor":"Editor A" if i%2==0 else "Editor B",
-                    "ini":min(fechas),"fin":max(fechas),"etapas":et})
+                    "ini":min(rango),"fin":max(rango),"etapas":et})
     return out
 
 def main():
@@ -77,11 +77,13 @@ def main():
     ruta = sys.argv[1] if len(sys.argv) > 1 else os.path.join(AQUI, "estado.json")
     if os.path.exists(ruta):
         estado = json.load(open(ruta, encoding="utf-8"))
-    datos = {"videos": construir(), "roles": NOMBRE_ROL,
+    videos = construir(estado.get("fechas"))
+    fin_real = max(v["fin"] for v in videos)
+    datos = {"videos": videos, "roles": NOMBRE_ROL,
              "sello": estado.get("sello"), "tareas": estado.get("tareas", {}),
              "vivo": bool(estado.get("vivo", estado.get("tareas"))),
              "proyecto": {"link": 4528285748, "takt": TAKT_NUEVO,
-                          "inicio": INICIO.isoformat(), "fin": FIN_PROYECTO}}
+                          "inicio": INICIO.isoformat(), "fin": fin_real}}
     plantilla = open(os.path.join(AQUI, "plantilla.html"), encoding="utf-8").read()
     html = plantilla.replace("__DATOS__", json.dumps(datos, ensure_ascii=False, separators=(",",":")))
     open(os.path.join(AQUI, "index.html"), "w", encoding="utf-8").write(html)

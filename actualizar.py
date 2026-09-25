@@ -27,10 +27,15 @@ def wrike(path):
 def main():
     tareas_wrike = wrike(f"/folders/{PROYECTO}/tasks?subTasks=true&fields=[%22subTaskIds%22]&pageSize=200")
     estado_por_titulo = {t["title"]: t.get("status") == "Completed" for t in tareas_wrike}
+    fechas_por_titulo = {t["title"]: [d["start"][:10], d["due"][:10]]
+                         for t in tareas_wrike
+                         for d in [t.get("dates") or {}]
+                         if d.get("start") and d.get("due")}
 
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import generar
     tareas = {}
+    fechas = {}
     faltantes = []
     for v in generar.construir():
         for et in v["etapas"]:
@@ -38,13 +43,16 @@ def main():
             if k not in estado_por_titulo:
                 faltantes.append(k)
             tareas[k] = {"completada": bool(estado_por_titulo.get(k))}
+            if k in fechas_por_titulo: fechas[k] = fechas_por_titulo[k]
 
     ahora = datetime.now(timezone(timedelta(hours=-3)))
-    json.dump({"sello": ahora.strftime("%d/%m %H:%M"), "vivo": True, "tareas": tareas},
+    json.dump({"sello": ahora.strftime("%d/%m %H:%M"), "vivo": True,
+               "tareas": tareas, "fechas": fechas},
               open("estado.json", "w", encoding="utf-8"), ensure_ascii=False)
 
     hechas = sum(1 for t in tareas.values() if t["completada"])
-    print(f"Wrike: {len(tareas_wrike)} tareas leídas · {hechas}/{len(tareas)} etapas completadas")
+    print(f"Wrike: {len(tareas_wrike)} tareas leídas · {hechas}/{len(tareas)} etapas completadas "
+          f"· {len(fechas)} con fechas reales")
     if faltantes:
         print(f"AVISO: {len(faltantes)} etapas del plan no aparecen en Wrike "
               f"(¿renombradas?): {', '.join(faltantes[:5])}")
